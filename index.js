@@ -1,10 +1,22 @@
 import express from "express";
 import axios from "axios";
+import promClient from "prom-client"
+import promBundle from "express-prom-bundle";
 import registerBookService from "./book.js";
+
 const bookService = new axios.Axios({
   baseURL: "http://localhost:3030/bookService/",
 });
+
+promClient.collectDefaultMetrics()
+
 const app = express();
+
+app.use(promBundle({
+  includePath: true,
+  includeMethod: true,
+}));
+
 app.get("/", async (req, res) => {
   const bookResp = await bookService.get("list");
   const books = JSON.parse(bookResp.data);
